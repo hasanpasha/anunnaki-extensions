@@ -2,7 +2,11 @@
     {
         "lang": "en",
         "exts": [
-            "cinemana"
+            {
+                "name": "cinemana",
+                "id": "shabakaty.cinemana",
+                "version": "0.1.0"
+            }
         ]
     }
 ]
