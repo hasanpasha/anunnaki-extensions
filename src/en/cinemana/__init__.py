@@ -7,7 +7,7 @@ def load_extension():
     return Extension(
         name=ext.name,
         id=ext.id,
-        version="0.1.0"
+        version="0.1.0",
         ext=ext,
         is_online=True
     )
