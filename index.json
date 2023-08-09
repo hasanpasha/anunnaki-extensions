@@ -4,7 +4,7 @@
         "exts": [
             {
                 "name": "cinemana",
-                "id": "shabakaty-cinemana.cinemana",
+                "id": "shabakaty.cinemana",
                 "version": "0.1.0"
             }
         ]
