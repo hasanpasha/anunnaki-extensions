@@ -1,12 +1,10 @@
 [
     {
+        "name": "cinemana",
+        "id": "shabakaty.cinemana",
+        "version": "0.1.0",
         "lang": "en",
-        "exts": [
-            {
-                "name": "cinemana",
-                "id": "shabakaty.cinemana",
-                "version": "0.1.0"
-            }
-        ]
+        "source": "/src/en/shabakaty.cinemana",
+        "base_url": "https://cinemana.shabakaty.com/"
     }
 ]
