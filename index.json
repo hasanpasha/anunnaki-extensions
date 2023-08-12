@@ -4,7 +4,7 @@
         "id": "shabakaty.cinemana",
         "version": "0.1.0",
         "lang": "en",
-        "source": "/src/en/shabakaty.cinemana",
+        "source": "src/en/shabakaty.cinemana",
         "base_url": "https://cinemana.shabakaty.com/"
     }
 ]
