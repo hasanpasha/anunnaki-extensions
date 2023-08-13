@@ -23,7 +23,7 @@ class Cinemana(HttpSource):
     api_url = "https://cinemana.shabakaty.com/api/android"
 
     def search_media_request(self, query: str, page: int, filters: dict = None) -> Request:
-        return Request('GET', f"{self.api_url}/AdvancedSearch?videoTitle={query}&page={page}")
+        return Request('GET', f"{self.api_url}/AdvancedSearch?videoTitle={query}&page={page - 1}")
 
     def search_media_parse(self, response: Response) -> MediasPage:
         medias = self.__media_parser(response)
