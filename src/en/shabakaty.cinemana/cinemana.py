@@ -107,7 +107,7 @@ class Cinemana(HttpSource):
                 for subtitle in subtitles
             ]
 
-    def __media_parser(self, response: Response) -> list(Media):
+    def __media_parser(self, response: Response) -> list[Media]:
         json = response.json()
         medias = [
             Media(
