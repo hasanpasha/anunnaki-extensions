@@ -52,7 +52,6 @@ class Cinemana(HttpSource):
 
     def season_list_parse(self, response: Response) -> list[Season]:
         json = response.json()
-
         un_episodes = self.__get_episodes(json=json)
 
         return [
