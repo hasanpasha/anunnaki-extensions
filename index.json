@@ -2,7 +2,7 @@
     {
         "name": "cinemana",
         "id": "shabakaty.cinemana",
-        "version": "0.1.4",
+        "version": "0.1.5",
         "lang": "en",
         "source": "src/en/shabakaty.cinemana",
         "base_url": "https://cinemana.shabakaty.com/"

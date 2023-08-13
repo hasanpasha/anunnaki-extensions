@@ -4,7 +4,7 @@ from anunnaki_source.online.http_source import HttpSource
 
 
 class Cinemana(HttpSource):
-    def __init__(self) -> None:
+    def __init__(self, session: Session = None) -> None:
         self.headers = {
             "Accept": "application/json, text/plain, */*",
             "Accept-Encoding": "gzip, deflate, br",
@@ -12,7 +12,7 @@ class Cinemana(HttpSource):
             "Connection": "keep-alive"
         }
 
-        if not self.session:
+        if not session:
             self.session = Session()
             self.session.headers = self.headers
 
