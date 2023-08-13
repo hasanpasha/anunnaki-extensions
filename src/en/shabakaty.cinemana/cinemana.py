@@ -1,4 +1,4 @@
-from requests import Request, Response
+from requests import Request, Response, Session
 from anunnaki_source.models import MediasPage, Media, Kind, Episode, Season, Video, Resolution, Subtitle, FileExtension
 from anunnaki_source.online.http_source import HttpSource
 
@@ -11,6 +11,10 @@ class Cinemana(HttpSource):
             "Accept-Language": "en-US,en;q=0.9,ar-EG;q=0.8,ar;q=0.7",
             "Connection": "keep-alive"
         }
+
+        if not self.session:
+            self.session = Session()
+            self.session.headers = self.headers
 
     name = "cinemana"
     base_url = "https://cinemana.shabakaty.com"
