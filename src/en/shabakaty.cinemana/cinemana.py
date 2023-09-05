@@ -16,11 +16,9 @@ class Cinemana(HttpSource):
             self.session = Session()
             self.session.headers = self.headers
 
-    name = "cinemana"
     base_url = "https://cinemana.shabakaty.com"
-    id = "shabakaty.cinemana"
-    lang = "en"
     api_url = "https://cinemana.shabakaty.com/api/android"
+    lang = "en"
 
     def search_media_request(self, query: str, page: int, filters: dict = None) -> Request:
         return Request('GET', f"{self.api_url}/AdvancedSearch?videoTitle={query}&page={page - 1}")
