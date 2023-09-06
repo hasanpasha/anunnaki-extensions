@@ -31,7 +31,7 @@ for PKGPATH in ${PKGS[@]}; do
     ZIPDEST="${REPO_ZIP}/${ZIPOUTPUT}"
     ICONDEST="${REPO_ICON}/${OUTPUTNAME}.png"
 
-    zip -r $ZIPOUTPUT $PKGPATH > /dev/null
+    zip -jr $ZIPOUTPUT $PKGPATH > /dev/null
     mv $ZIPOUTPUT $ZIPDEST > /dev/null
     
     cp $ICON $ICONDEST
