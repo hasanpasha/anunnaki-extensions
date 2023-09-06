@@ -36,10 +36,10 @@ for PKGPATH in ${PKGS[@]}; do
     
     cp $ICON $ICONDEST
 
+    # --arg zip $ZIPOUTPUT \
     jq -n \
         --arg name "$NAME" \
         --arg pkg "$PKG" \
-        # --arg zip $ZIPOUTPUT \
         --arg lang "$LANG" \
         --arg version "$VERSION" \
         --arg id "$ID" \
