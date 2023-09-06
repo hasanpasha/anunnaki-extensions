@@ -15,6 +15,8 @@ mkdir -p $REPO_ICON
 PKGS=( src/*/* )
 
 for PKGPATH in ${PKGS[@]}; do
+    ICON="${PKGPATH}/icon.png"
+    
     METADATAFILE="${PKGPATH}/metadata.json"
     NAME=$(jq '.name' < $METADATAFILE | tr -d "\"")
     PKG=$(jq '.package_name' < $METADATAFILE | tr -d "\"")
@@ -22,8 +24,6 @@ for PKGPATH in ${PKGS[@]}; do
     VERSION=$(jq '.version' < $METADATAFILE | tr -d "\"")
     BASE_URL=$(jq '.base_url' < $METADATAFILE | tr -d "\"")
     ID=$(jq '.id' < $METADATAFILE | tr -d "\"")
-    RSRC="${PKGPATH}/resources"
-    ICON="${RSRC}/icon.png"
 
 
     OUTPUTNAME="${LANG}_${PKG}_v${VERSION}"
