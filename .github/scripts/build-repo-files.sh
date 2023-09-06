@@ -39,12 +39,12 @@ for PKGPATH in ${PKGS[@]}; do
     jq -n \
         --arg name "$NAME" \
         --arg pkg "$PKG" \
-        --arg zip $ZIPOUTPUT \
+        # --arg zip $ZIPOUTPUT \
         --arg lang "$LANG" \
         --arg version "$VERSION" \
         --arg id "$ID" \
         --arg base_url "$BASE_URL" \
-        '{name:$name, pkg:$pkg, zip:$zip, lang:$lang, version:$version, id:$id, base_url:$base_url}'
+        '{name:$name, pkg:$pkg, lang:$lang, version:$version, id:$id, base_url:$base_url}'
 
 done | jq -sr '[.[]]' > $INDEX
 
