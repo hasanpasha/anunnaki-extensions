@@ -119,7 +119,7 @@ class Cinemana(HttpSource):
             Media(
                 title=media_json['en_title'],
                 slang=media_json['nb'],
-                # thumbnail_url=media_json['imgThumbObjUrl'],
+                thumbnail_url=media_json['imgThumbObjUrl'],
                 kind=Kind.MOVIES if media_json['kind'] == '1' else Kind.SERIES
             )
             for media_json in json
