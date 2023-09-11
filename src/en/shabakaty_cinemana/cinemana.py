@@ -4,6 +4,13 @@ from anunnaki_source.online.http_source import HttpSource
 
 
 class Cinemana(HttpSource):
+    name = "cinemana"
+    pkg = "shabakaty_cinemana"
+    lang = "en"
+    id = 6766468217767473    
+    base_url = "https://cinemana.shabakaty.com"
+    api_url = "https://cinemana.shabakaty.com/api/android"
+
     def __init__(self, session: Session = None) -> None:
         self.headers = {
             "Accept": "application/json, text/plain, */*",
@@ -16,9 +23,6 @@ class Cinemana(HttpSource):
             self.session = Session()
             self.session.headers = self.headers
 
-    base_url = "https://cinemana.shabakaty.com"
-    api_url = "https://cinemana.shabakaty.com/api/android"
-    lang = "en"
 
     def search_media_request(self, query: str, page: int, filters: dict = None) -> Request:
         return Request('GET', f"{self.api_url}/AdvancedSearch?videoTitle={query}&page={page - 1}")
