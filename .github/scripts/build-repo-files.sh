@@ -42,7 +42,7 @@ for PKGPATH in ${PKGS[@]}; do
         --arg pkg "$PKG" \
         --arg lang "$LANG" \
         --arg version "$VERSION" \
-        --arg id "$ID" \
+        --arg id $ID \
         --arg base_url "$BASE_URL" \
         '{name:$name, pkg:$pkg, lang:$lang, version:$version, id:$id, base_url:$base_url}'
 
