@@ -1,5 +1,5 @@
 from requests import Request, Response, Session
-from anunnaki_source.models import MediasPage, Media, Kind, Episode, Season, Video, Resolution, Subtitle, FileExtension
+from anunnaki_source.models import MediasPage, Media, Kind, Episode, Season, Video, Resolution, Subtitle, FileExtension, Filter
 from anunnaki_source.online.http_source import HttpSource
 
 
@@ -10,7 +10,7 @@ class Cinemana(HttpSource):
     id = 6766468217767473    
     base_url = "https://cinemana.shabakaty.com"
     api_url = "https://cinemana.shabakaty.com/api/android"
-    support_latest=False
+    support_latest = False
 
     def __init__(self, session: Session = None) -> None:
         self.headers = {
@@ -23,7 +23,6 @@ class Cinemana(HttpSource):
         if not session:
             self.session = Session()
             self.session.headers = self.headers
-
 
     def search_media_request(self, query: str, page: int, filters: dict = None) -> Request:
         return Request('GET', f"{self.api_url}/AdvancedSearch?videoTitle={query}&page={page - 1}")
@@ -40,8 +39,14 @@ class Cinemana(HttpSource):
         medias = self.__media_parser(response, is_popular=True)
         return MediasPage(medias=medias, has_next=False)
 
+    def latest_media_request(self, page: int, filters: list[Filter] = None) -> Request:
+        pass
+
+    def latest_media_parse(self, response: Response) -> MediasPage:
+        pass
+
     def media_detail_request(self, media: Media) -> Request:
-        return Request('GET', f"{self.api_url}/allVideoInfo/id/{media.slang}")
+        return Request('GET', f"{self.api_url}/allVideoInfo/id/{media.slug}")
 
     def media_detail_parse(self, response: Response) -> Media:
         json = response.json()
@@ -51,7 +56,7 @@ class Cinemana(HttpSource):
         )
 
     def season_list_request(self, media: Media) -> Request:
-        return Request('GET', f"{self.api_url}/videoSeason/id/{media.slang}")
+        return Request('GET', f"{self.api_url}/videoSeason/id/{media.slug}")
 
     def season_list_parse(self, response: Response) -> list[Season]:
         json = response.json()
@@ -61,7 +66,7 @@ class Cinemana(HttpSource):
             Season(season=str(s_nm), episodes=[
                 Episode(
                     episode=f"season={s_nm} episode={ep_nm}",
-                    slang=ep['nb'],
+                    slug=ep['nb'],
                     has_next=ep_nm != len(s),
                     is_special=ep['isSpecial'] == '1'
                 )
@@ -70,7 +75,7 @@ class Cinemana(HttpSource):
             for s_nm, s in sorted(un_episodes.items())
         ]
 
-    def __get_episodes(self, json) -> dict[dict]:
+    def __get_episodes(self, json) -> dict[int, dict]:
         episodes = {}
         for episode in json:
             season_nm = int(episode['season'])
@@ -86,7 +91,7 @@ class Cinemana(HttpSource):
         return episodes
 
     def video_list_request(self, episode: Episode) -> Request:
-        return Request('GET', f"{self.api_url}/transcoddedFiles/id/{episode.slang}")
+        return Request('GET', f"{self.api_url}/transcoddedFiles/id/{episode.slug}")
 
     def video_list_parse(self, response: Response) -> list[Video]:
         json = response.json()
@@ -97,7 +102,7 @@ class Cinemana(HttpSource):
         ]
 
     def subtitle_list_request(self, episode: Episode) -> Request:
-        return Request('GET', f"{self.api_url}/translationFiles/id/{episode.slang}")
+        return Request('GET', f"{self.api_url}/translationFiles/id/{episode.slug}")
 
     def subtitle_list_parse(self, response: Response) -> list[Subtitle]:
         try:
@@ -108,7 +113,7 @@ class Cinemana(HttpSource):
             return [
                 Subtitle(
                     url=subtitle['file'],
-                    language=subtitle['type'],
+                    lang=subtitle['type'],
                     extension=FileExtension(subtitle['extention'])
                 )
                 for subtitle in subtitles
@@ -119,9 +124,10 @@ class Cinemana(HttpSource):
         medias = [
             Media(
                 title=media_json['en_title'],
-                slang=media_json['nb'],
+                slug=media_json['nb'],
                 thumbnail_url=f"https://cnth2.shabakaty.com/{media_json['imgMediumThumbObjUrl']}"
                 if is_popular else media_json['imgMediumThumbObjUrl'],
+                year=media_json['year'],
                 kind=Kind.MOVIES if media_json['kind'] == '1' else Kind.SERIES
             )
             for media_json in json
