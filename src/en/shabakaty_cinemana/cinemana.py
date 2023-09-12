@@ -10,6 +10,7 @@ class Cinemana(HttpSource):
     id = 6766468217767473    
     base_url = "https://cinemana.shabakaty.com"
     api_url = "https://cinemana.shabakaty.com/api/android"
+    support_latest=False
 
     def __init__(self, session: Session = None) -> None:
         self.headers = {
@@ -31,12 +32,12 @@ class Cinemana(HttpSource):
         medias = self.__media_parser(response)
         return MediasPage(medias=medias, has_next=len(medias) > 0)
 
-    def popular_media_request(self, page: int) -> Request:
+    def popular_media_request(self, page: int, filters: dict = None) -> Request:
         return Request(
             'GET', f"{self.api_url}/banner/level/0")
 
     def popular_media_parse(self, response: Response) -> MediasPage:
-        medias = self.__media_parser(response)
+        medias = self.__media_parser(response, is_popular=True)
         return MediasPage(medias=medias, has_next=False)
 
     def media_detail_request(self, media: Media) -> Request:
@@ -113,13 +114,14 @@ class Cinemana(HttpSource):
                 for subtitle in subtitles
             ]
 
-    def __media_parser(self, response: Response) -> list[Media]:
+    def __media_parser(self, response: Response, is_popular: bool = False) -> list[Media]:
         json = response.json()
         medias = [
             Media(
                 title=media_json['en_title'],
                 slang=media_json['nb'],
-                thumbnail_url=media_json['imgThumbObjUrl'],
+                thumbnail_url=f"https://cnth2.shabakaty.com/{media_json['imgMediumThumbObjUrl']}"
+                if is_popular else media_json['imgMediumThumbObjUrl'],
                 kind=Kind.MOVIES if media_json['kind'] == '1' else Kind.SERIES
             )
             for media_json in json
