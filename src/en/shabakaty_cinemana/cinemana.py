@@ -52,7 +52,10 @@ class Cinemana(HttpSource):
         json = response.json()
         return Media(
             title=json['en_title'],
-            url=f"{self.base_url}/video/{self.lang}/{json['nb']}"
+            url=f"{self.base_url}/video/{self.lang}/{json['nb']}",
+            description=json[f'{self.lang}_content'],
+            tags=[c[f'{self.lang}_title'] for c in json['categories']],
+            thumbnail_url=json['imgObjUrl'],
         )
 
     def season_list_request(self, media: Media) -> Request:
