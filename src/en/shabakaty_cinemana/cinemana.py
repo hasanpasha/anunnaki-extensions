@@ -1,6 +1,12 @@
-from requests import Request, Response, Session
-from anunnaki_source.models import MediasPage, Media, Kind, Episode, Season, Video, Resolution, Subtitle, FileExtension, Filter
+from aiohttp import ClientSession, ClientResponse
+
+from anunnaki_source.models import (
+    MediasPage, Media, Kind, Episode, Season, SeasonList,
+    Video, VideoList, Resolution, Subtitle, SubtitleList, FileExtension, FilterList
+)
 from anunnaki_source.online.http_source import HttpSource
+from anunnaki_source.network import Request
+from typing import List, Dict, Any
 
 
 class Cinemana(HttpSource):
@@ -12,44 +18,41 @@ class Cinemana(HttpSource):
     api_url = "https://cinemana.shabakaty.com/api/android"
     support_latest = False
 
-    def __init__(self, session: Session = None) -> None:
-        self.headers = {
-            "Accept": "application/json, text/plain, */*",
-            "Accept-Encoding": "gzip, deflate, br",
-            "Accept-Language": "en-US,en;q=0.9,ar-EG;q=0.8,ar;q=0.7",
-            "Connection": "keep-alive"
-        }
+    def __init__(self, session: ClientSession = None, headers: Dict[str, Any] = None) -> None:
+        self.headers = {}
+        
+        if session is not None:
+            self.session = session
 
-        if not session:
-            self.session = Session()
-            self.session.headers = self.headers
+        if headers is not None:
+            self.headers = headers
 
-    def search_media_request(self, query: str, page: int, filters: dict = None) -> Request:
-        return Request('GET', f"{self.api_url}/AdvancedSearch?videoTitle={query}&page={page - 1}")
+    async def search_media_request(self, query: str, page: int, filters: FilterList = None) -> Request:
+        return Request('GET', url=f"{self.api_url}/AdvancedSearch?videoTitle={query}&page={(page-1)}")
 
-    def search_media_parse(self, response: Response) -> MediasPage:
-        medias = self.__media_parser(response)
+    async def search_media_parse(self, response: ClientResponse) -> MediasPage:
+        medias = await self.__media_parser(response)
         return MediasPage(medias=medias, has_next=len(medias) > 0)
 
-    def popular_media_request(self, page: int, filters: dict = None) -> Request:
+    async def popular_media_request(self, page: int, filters: FilterList = None) -> Request:
         return Request(
             'GET', f"{self.api_url}/banner/level/0")
 
-    def popular_media_parse(self, response: Response) -> MediasPage:
-        medias = self.__media_parser(response, is_popular=True)
+    async def popular_media_parse(self, response: ClientResponse) -> MediasPage:
+        medias = await self.__media_parser(response, is_popular=True)
         return MediasPage(medias=medias, has_next=False)
 
-    def latest_media_request(self, page: int, filters: list[Filter] = None) -> Request:
-        pass
+    async def latest_media_request(self, page: int, filters: FilterList = None) -> Request:
+        ...
 
-    def latest_media_parse(self, response: Response) -> MediasPage:
-        pass
+    async def latest_media_parse(self, response: ClientResponse) -> MediasPage:
+        ...
 
-    def media_detail_request(self, media: Media) -> Request:
+    async def media_detail_request(self, media: Media) -> Request:
         return Request('GET', f"{self.api_url}/allVideoInfo/id/{media.slug}")
 
-    def media_detail_parse(self, response: Response) -> Media:
-        json = response.json()
+    async def media_detail_parse(self, response: ClientResponse) -> Media:
+        json = await response.json
         return Media(
             title=json['en_title'],
             url=f"{self.base_url}/video/{self.lang}/{json['nb']}",
@@ -58,14 +61,14 @@ class Cinemana(HttpSource):
             thumbnail_url=json['imgObjUrl'],
         )
 
-    def season_list_request(self, media: Media) -> Request:
+    async def season_list_request(self, media: Media) -> Request:
         return Request('GET', f"{self.api_url}/videoSeason/id/{media.slug}")
 
-    def season_list_parse(self, response: Response) -> list[Season]:
-        json = response.json()
+    async def season_list_parse(self, response: ClientResponse) -> SeasonList:
+        json = await response.json
         un_episodes = self.__get_episodes(json=json)
 
-        return [
+        seasons = [
             Season(season=str(s_nm), episodes=[
                 Episode(
                     episode=f"season={s_nm} episode={ep_nm}",
@@ -77,6 +80,8 @@ class Cinemana(HttpSource):
             ], has_next=s_nm != len(un_episodes))
             for s_nm, s in sorted(un_episodes.items())
         ]
+
+        return SeasonList(root=seasons)
 
     def __get_episodes(self, json) -> dict[int, dict]:
         episodes = {}
@@ -93,37 +98,39 @@ class Cinemana(HttpSource):
 
         return episodes
 
-    def video_list_request(self, episode: Episode) -> Request:
+    async def video_list_request(self, episode: Episode) -> Request:
         return Request('GET', f"{self.api_url}/transcoddedFiles/id/{episode.slug}")
 
-    def video_list_parse(self, response: Response) -> list[Video]:
+    async def video_list_parse(self, response: ClientResponse) -> VideoList:
         json = response.json()
-        return [
-            Video(url=s_json['videoUrl'],
-                  resolution=Resolution(s_json['resolution']))
-            for s_json in json
-        ]
+        videos = [Video(
+                    url=s_json['videoUrl'],
+                    resolution=Resolution(s_json['resolution']))
+                    for s_json in json]
+        return VideoList(root=videos)
 
-    def subtitle_list_request(self, episode: Episode) -> Request:
+    async def subtitle_list_request(self, episode: Episode) -> Request:
         return Request('GET', f"{self.api_url}/translationFiles/id/{episode.slug}")
 
-    def subtitle_list_parse(self, response: Response) -> list[Subtitle]:
-        try:
-            subtitles = response.json()['translations']
-        except:
-            return []
-        else:
-            return [
+    async def subtitle_list_parse(self, response: ClientResponse) -> SubtitleList:
+        json = await response.json
+        if 'translations' in json.keys():
+            subtitles = [
                 Subtitle(
                     url=subtitle['file'],
                     lang=subtitle['type'],
                     extension=FileExtension(subtitle['extention'])
                 )
-                for subtitle in subtitles
+                for subtitle in json['translations']
             ]
+        else:
+            subtitles = []
 
-    def __media_parser(self, response: Response, is_popular: bool = False) -> list[Media]:
-        json = response.json()
+        return SubtitleList(root=subtitles) 
+
+
+    async def __media_parser(self, response: ClientResponse, is_popular: bool = False) -> List[Media]:
+        json = await response.json()
         medias = [
             Media(
                 title=media_json['en_title'],
