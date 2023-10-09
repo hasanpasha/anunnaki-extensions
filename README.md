@@ -1,7 +1,9 @@
 # anunnaki extensions
 
 ### How to create a new source
+
 In order to create a new source you have to implement the following file tree:
+
 ```bash
 lang
 └── package_name
@@ -15,10 +17,11 @@ lang
 - `source_class.py`: contains the implementation of one of the source classes, This is the heart of the source.
 - `icon.png`: The icon of the source.
 - `metadata.json`: Contains the necessary information for the extensions repo, which is: [see also](#how-to-generate-an-id-for-your-source)
+
 ```json
 {
     "name": "source_name",
-    "package_name": "source_pkg_name",
+    "pkg": "source_pkg_name",
     "lang": "source_lang",
     "id": 0123456789101214,
     "base_url": "...",
@@ -27,7 +30,9 @@ lang
 ```
 
 #### How to generate an `id` for your source
+
 the `id` should be 16 digits
+
 ```python
 import hashlib
 

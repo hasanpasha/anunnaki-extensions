@@ -19,7 +19,7 @@ for PKGPATH in ${PKGS[@]}; do
     
     METADATAFILE="${PKGPATH}/metadata.json"
     NAME=$(jq '.name' < $METADATAFILE | tr -d "\"")
-    PKG=$(jq '.package_name' < $METADATAFILE | tr -d "\"")
+    PKG=$(jq '.pkg' < $METADATAFILE | tr -d "\"")
     LANG=$(jq '.lang' < $METADATAFILE | tr -d "\"")    
     VERSION=$(jq '.version' < $METADATAFILE | tr -d "\"")
     BASE_URL=$(jq '.base_url' < $METADATAFILE | tr -d "\"")
